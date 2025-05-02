@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-cream: #f2f1ec;
+  --color-light-blue: #bbccdc;
+  --color-blue-gray: #7e8f9f;
+  --color-sage: #92a18e;
+  --color-dark-green: #687764;
+}
+
+body {
+  font-family: "Cormorant Garamond", serif;
+  color: var(--color-blue-gray);
+  background-color: var(--color-cream);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
