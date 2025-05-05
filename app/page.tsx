@@ -1,48 +1,153 @@
-import Image from "next/image"
-import { Calendar, MapPin, Heart, Music, Camera, UtensilsCrossed } from "lucide-react"
+"use client";
+
+import { useRef, useEffect, useState } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
+import Image from "next/image";
+import { Calendar, MapPin, Heart, Music, Camera, UtensilsCrossed } from "lucide-react";
 
 export default function Home() {
+  const detailsRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  
+  // Use real scroll position instead of virtual scroll
+  const scrollY = useMotionValue(0);
+  const [viewportHeight, setViewportHeight] = useState(0);
+  
+  // Update viewport height on mount and resize
+  useEffect(() => {
+    const updateHeight = () => {
+      setViewportHeight(window.innerHeight);
+    };
+    
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+  
+  // Track actual scroll position
+  useEffect(() => {
+    const updateScroll = () => {
+      scrollY.set(window.scrollY);
+    };
+    
+    // Initial update
+    updateScroll();
+    
+    // Listen for scroll events (works with both wheel and touch)
+    window.addEventListener("scroll", updateScroll, { passive: true });
+    return () => window.removeEventListener("scroll", updateScroll);
+  }, [scrollY]);
+  
+  // Map scroll position to parallax progress (0-1)
+  const progress = useTransform(scrollY, [0, viewportHeight], [0, 1]);
+  
+  // Map progress to visual elements
+  const leftImageX = useTransform(progress, [0, 1], ["0%", "-120%"]);
+  const rightImageX = useTransform(progress, [0, 1], ["0%", "120%"]);
+  const textOpacity = useTransform(progress, [0.6, 0.8], [0, 1]);
+  const textY = useTransform(progress, [0.6, 0.8], ["30px", "0px"]);
+  const deslizaOpacity = useTransform(progress, [0, 0.3], [1, 0]);
+  
+  // Progress bar width
+  const [progressBarWidth, setProgressBarWidth] = useState("0%");
+  useEffect(() => {
+    const unsubscribe = progress.onChange(value => {
+      setProgressBarWidth(`${Math.min(100, Math.max(0, value * 100))}%`);
+    });
+    return unsubscribe;
+  }, [progress]);
+
   return (
     <main className="min-h-screen bg-[#F2F1EC] font-serif">
-      {/* Hero Section */}
-      <section className="relative h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center opacity-20"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F2F1EC]/80 to-[#F2F1EC]/90"></div>
-
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <p className="text-[#7E8F9F] mb-4 animate-fade-in">Nos casamos</p>
-          <h1 className="text-4xl md:text-7xl font-bold text-[#687764] mb-6 tracking-wide">
-            Yoalli <span className="text-[#92A18E]">&</span> Miguel
-          </h1>
-          <div className="w-24 h-1 bg-[#BBCCDC] mx-auto mb-6"></div>
-          <p className="text-xl md:text-2xl text-[#7E8F9F] mb-8">27 de Diciembre de 2025</p>
-          <button className="bg-[#92A18E] hover:bg-[#687764] text-white py-3 px-8 rounded-full transition duration-300 text-lg">
-            Confirmar Asistencia
-          </button>
-        </div>
-
-        <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce">
-          <div className="rounded-full p-2 bg-[#BBCCDC]">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-white"
+      {/* Hero Section with double height to allow scrolling */}
+      <section className="relative h-[200vh]">
+        {/* Fixed parallax container */}
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          {/* Left Flower Image */}
+          <motion.div
+            className="absolute top-0 left-0 h-full w-[100vw] overflow-hidden"
+            style={{ x: leftImageX }}
+          >
+            <motion.div
+              className="h-full w-full relative"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
             >
-              <path d="M12 5v14M5 12l7 7 7-7" />
-            </svg>
-          </div>
+              <Image
+                src="/flowers-left2.png"
+                alt="Flowers Left"
+                fill
+                className="object-cover object-right"
+                priority
+              />
+            </motion.div>
+          </motion.div>
+
+          {/* Right Flower Image */}
+          <motion.div
+            className="absolute top-0 right-0 h-full w-[100vw] overflow-hidden"
+            style={{ x: rightImageX }}
+          >
+            <motion.div
+              className="h-full w-full relative"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+            >
+              <Image
+                src="/flowers-right2.png"
+                alt="Flowers Right"
+                fill
+                className="object-cover object-left"
+                priority
+              />
+            </motion.div>
+          </motion.div>
+
+          {/* "Desliza para abrir" Message */}
+          <motion.div 
+            className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+            style={{ opacity: deslizaOpacity }}
+          >
+            <p className="text-black text-2xl md:text-4xl font-semibold animate-bounce">
+              Desliza para abrir
+            </p>
+          </motion.div>
+
+          {/* Main Text */}
+          <motion.div
+            className="absolute inset-0 flex flex-col items-center justify-center text-center z-20 pointer-events-none"
+            style={{ opacity: textOpacity, y: textY }}
+          >
+            <p className="text-[#7E8F9F] text-lg md:text-xl mb-4">Nos casamos</p>
+            <h1 className="text-4xl md:text-7xl font-bold text-[#687764]">
+              Yoalli <span className="text-[#92A18E]">&</span> Miguel
+            </h1>
+            <p className="text-xl md:text-2xl text-[#7E8F9F] mt-4">
+              27 de Diciembre de 2025
+            </p>
+          </motion.div>
+
+          {/* Visual scroll indicator */}
+          <motion.div
+            className="absolute bottom-8 left-0 right-0 flex justify-center items-center pointer-events-none"
+            style={{ opacity: deslizaOpacity }}
+          >
+            <motion.div 
+              className="h-1 w-64 bg-[#BBCCDC] rounded-full overflow-hidden"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <motion.div 
+                className="h-full bg-[#687764]" 
+                style={{ width: progressBarWidth }}
+              />
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Mensaje Section */}
-      <section className="py-20 px-4 bg-[#BBCCDC]/20">
+      <section ref={detailsRef} className="py-20 px-4 bg-[#BBCCDC]/20">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-semibold text-[#687764] mb-8">
             Con la bendición de nuestras familias
@@ -274,9 +379,9 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-[#687764] mb-4">Yoalli & Miguel</h2>
           <p className="text-[#7E8F9F]">¡Gracias por ser parte de nuestra historia!</p>
-          <p className="text-[#7E8F9F] mt-6">27 · 12 · 2025</p>
+          <p className="text-[#7E8F9F] mt-6">27 · 12 · 5</p>
         </div>
       </footer>
     </main>
-  )
+  );
 }

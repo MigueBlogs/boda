@@ -30,3 +30,29 @@ body {
 .animate-fade-in {
   animation: fade-in 1s ease-out forwards;
 }
+
+.parallax-left {
+  animation: parallaxLeft 2s ease-out forwards;
+}
+
+.parallax-right {
+  animation: parallaxRight 2s ease-out forwards;
+}
+
+@keyframes parallaxLeft {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes parallaxRight {
+  from {
+    transform: translateX(50%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}

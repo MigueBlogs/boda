@@ -5,7 +5,7 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "Yoalli & Miguel - Invitación de Boda",
   description: "Te invitamos a celebrar nuestra boda el 27 de Diciembre de 2025",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -23,7 +23,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body suppressHydrationWarning={true}>
+        {children}
+      </body>
     </html>
   )
 }
