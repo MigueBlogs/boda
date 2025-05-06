@@ -78,9 +78,9 @@ const PhotoGallery = () => {
   };
 
   return (
-    <div className="relative h-[600px] md:h-[70vh] w-full overflow-hidden">
-      {/* Photo stack */}
-      <div className="absolute inset-0 flex items-center justify-center">
+    <div className="relative h-[700px] md:h-[80vh] w-full overflow-hidden flex flex-col">
+      {/* Photo stack - positioned at the top portion */}
+      <div className="relative flex-1 flex items-center justify-center mb-20 overflow-visible">
         {images.map((image, index) => {
           const isActive = index === currentIndex;
           const styles = getStackStyles(index, isActive);
@@ -126,8 +126,8 @@ const PhotoGallery = () => {
         })}
       </div>
       
-      {/* Gallery navigation controls - moved up for visibility */}
-      <div className="absolute bottom-32 left-0 right-0 flex justify-center gap-3 z-10">
+      {/* Gallery navigation controls - in the middle */}
+      <div className="relative h-12 flex justify-center gap-3 z-10 mb-4">
         {images.map((_, index) => (
           <button
             key={index}
@@ -140,8 +140,32 @@ const PhotoGallery = () => {
         ))}
       </div>
       
-      {/* Swipe indicator - moved up and increased z-index */}
-      <div className="absolute bottom-16 left-0 right-0 flex flex-col items-center justify-center py-4 bg-white/80 rounded-t-xl z-10">
+      {/* Desktop arrows for navigation */}
+      <div className="hidden md:flex absolute inset-x-0 top-1/2 transform -translate-y-1/2 justify-between px-4 z-20">
+        <button 
+          onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}
+          className={`bg-white/70 hover:bg-white rounded-full p-3 focus:outline-none transition-opacity ${currentIndex === 0 ? 'opacity-50 cursor-default' : 'cursor-pointer'}`}
+          disabled={currentIndex === 0}
+          aria-label="Foto anterior"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#687764]">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button 
+          onClick={() => currentIndex < images.length - 1 && setCurrentIndex(currentIndex + 1)}
+          className={`bg-white/70 hover:bg-white rounded-full p-3 focus:outline-none transition-opacity ${currentIndex === images.length - 1 ? 'opacity-50 cursor-default' : 'cursor-pointer'}`}
+          disabled={currentIndex === images.length - 1}
+          aria-label="Siguiente foto"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#687764]">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+      
+      {/* Swipe indicator - at the bottom - visible only on mobile */}
+      <div className="relative h-24 flex flex-col items-center justify-center py-4 bg-white/80 rounded-t-xl z-10 md:hidden">
         <motion.svg 
           width="48" 
           height="48" 
@@ -292,27 +316,52 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* "Desliza para abrir" Message */}
+          {/* "Desliza/Usa el Scroll para abrir" Message - Different for mobile/desktop */}
           <motion.div 
             className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none"
             style={{ opacity: deslizaOpacity }}
           >
-            <p className="text-black text-2xl md:text-4xl font-semibold animate-bounce mb-6">
+            {/* Mobile instruction */}
+            <p className="text-black text-2xl md:hidden font-semibold animate-bounce mb-6">
               Desliza para abrir
             </p>
-            {/* Swipe icon */}
+            
+            {/* Desktop instruction */}
+            <p className="hidden md:block text-black text-4xl font-semibold animate-bounce mb-6">
+              Usa el scroll para abrir
+            </p>
+            
+            {/* Mobile swipe icon */}
             <motion.svg 
               width="32" 
               height="32" 
               viewBox="0 0 24 24"
               animate={{ y: [0, 5, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="text-black"
+              className="text-black md:hidden"
             >
               <path 
                 d="M3.8 12.18c-.2-.86-.3-1.76-.3-2.68 0-2.84.99-5.45 2.63-7.5L7.2 3.07a10.457 10.457 0 00-1.88 8.99l1.62-1.62L8 11.5 4.5 15 1 11.5l1.06-1.06 1.74 1.74zm10.05-.56l-2.68-5.37a1.498 1.498 0 00-2.01-.67c-.75.38-1.05 1.28-.68 2.02l4.81 9.6-3.24.8c-.33.09-.59.33-.7.66L9 19.78l6.19 2.25c.5.17 1.28.02 1.75-.22l5.51-2.75c.89-.45 1.32-1.48 1-2.42l-1.43-4.27a2 2 0 00-1.9-1.37h-4.56c-.31 0-.62.07-.89.21l-.82.41"
                 fill="currentColor"
               />
+            </motion.svg>
+            
+            {/* Desktop mouse scroll icon */}
+            <motion.svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              animate={{ y: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="text-black hidden md:block"
+            >
+              <rect x="6" y="3" width="12" height="18" rx="6"></rect>
+              <line x1="12" y1="7" x2="12" y2="11"></line>
             </motion.svg>
           </motion.div>
 
@@ -420,7 +469,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-semibold text-[#687764] mb-12">Cuenta Regresiva</h2>
           
-          <div className="flex flex-wrap justify-center gap-4 md:gap-10">
+          <div className="flex flex-wrap justify-center gap-3 md:gap-10">
             <CountdownItem value={countdown.days} label="Días" />
             <CountdownItem value={countdown.hours} label="Horas" />
             <CountdownItem value={countdown.minutes} label="Minutos" />
@@ -493,7 +542,7 @@ export default function Home() {
                 className="w-full px-4 py-3 border border-[#BBCCDC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#92A18E]"
               />
             </div>
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <select className="w-full px-4 py-3 border border-[#BBCCDC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#92A18E] bg-white">
                 <option value="">Número de invitados</option>
                 <option value="1">1 persona</option>
@@ -501,7 +550,7 @@ export default function Home() {
                 <option value="3">3 personas</option>
                 <option value="4">4 personas</option>
               </select>
-            </div>
+            </div> */}
             <button
               type="submit"
               className="w-full bg-[#92A18E] hover:bg-[#687764] text-white py-3 px-6 rounded-full transition duration-300 text-lg"
